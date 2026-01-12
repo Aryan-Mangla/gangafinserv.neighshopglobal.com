@@ -1,14 +1,278 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ganga</title>
-    <script type="module" crossorigin src="/assets/index-BWBaW3GU.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BwiHQFya.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Cooldown - Ganga Finserve</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .cooldown-container {
+      text-align: center;
+      padding: 40px;
+      max-width: 800px;
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      font-size: 48px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, #ffffff 0%, #cccccc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .status-icon {
+      font-size: 80px;
+      margin-bottom: 30px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #cccccc;
+      margin-bottom: 50px;
+      line-height: 1.6;
+    }
+
+    .countdown-display {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .time-unit {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 25px 30px;
+      min-width: 120px;
+      backdrop-filter: blur(10px);
+    }
+
+    .time-value {
+      font-size: 48px;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .time-label {
+      font-size: 14px;
+      color: #999999;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ffffff 0%, #666666 100%);
+      border-radius: 10px;
+      transition: width 1s linear;
+    }
+
+    .message {
+      font-size: 16px;
+      color: #aaaaaa;
+      margin-top: 30px;
+      line-height: 1.8;
+    }
+
+    .loader {
+      margin: 30px auto;
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid #ffffff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .cooldown-container {
+        padding: 20px;
+      }
+
+      .logo {
+        font-size: 32px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .countdown-display {
+        gap: 15px;
+      }
+
+      .time-unit {
+        padding: 20px 25px;
+        min-width: 100px;
+      }
+
+      .time-value {
+        font-size: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="cooldown-container">
+    <div class="logo">Ganga Finserve</div>
+    <div class="status-icon">⚙️</div>
+    <h1>Server Cooldown in Progress</h1>
+    <p class="subtitle">We're optimizing our infrastructure to streamline projects and enhance performance.<br>Thank you for your patience.</p>
+    
+    <div class="countdown-display">
+      <div class="time-unit">
+        <span class="time-value" id="hours">00</span>
+        <span class="time-label">Hours</span>
+      </div>
+      <div class="time-unit">
+        <span class="time-value" id="minutes">00</span>
+        <span class="time-label">Minutes</span>
+      </div>
+      <div class="time-unit">
+        <span class="time-value" id="seconds">00</span>
+        <span class="time-label">Seconds</span>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="loader"></div>
+
+    <p class="message">
+      Our systems will be back online shortly.<br>
+      Estimated completion: <strong id="completionTime"></strong>
+    </p>
+  </div>
+
+  <script>
+    // Set cooldown duration to 24 hours (in milliseconds)
+    const COOLDOWN_DURATION = 24 * 60 * 60 * 1000;
+    const STORAGE_KEY = 'serverCooldownStart';
+
+    function initializeCooldown() {
+      let startTime = localStorage.getItem(STORAGE_KEY);
+      
+      if (!startTime) {
+        startTime = Date.now();
+        localStorage.setItem(STORAGE_KEY, startTime);
+      }
+
+      return parseInt(startTime);
+    }
+
+    function updateCountdown() {
+      const startTime = initializeCooldown();
+      const endTime = startTime + COOLDOWN_DURATION;
+      const now = Date.now();
+      const remaining = endTime - now;
+
+      // Check if cooldown is complete
+      if (remaining <= 0) {
+        // Clear the storage
+        localStorage.removeItem(STORAGE_KEY);
+        
+        // Replace current page with the main application
+        document.body.innerHTML = `
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              <title>Ganga Finserve</title>
+              <script type="module" crossorigin src="/assets/index-BWBaW3GU.js"><\/script>
+              <link rel="stylesheet" crossorigin href="/assets/index-BwiHQFya.css">
+            </head>
+            <body>
+              <div id="root"></div>
+            </body>
+          </html>
+        `;
+        
+        // Reload to ensure scripts execute
+        location.reload();
+        return;
+      }
+
+      // Calculate time units
+      const hours = Math.floor(remaining / (1000 * 60 * 60));
+      const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+      // Update display
+      document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+      document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+
+      // Update progress bar
+      const progress = ((COOLDOWN_DURATION - remaining) / COOLDOWN_DURATION) * 100;
+      document.getElementById('progressFill').style.width = progress + '%';
+
+      // Update completion time
+      const completionDate = new Date(endTime);
+      document.getElementById('completionTime').textContent = completionDate.toLocaleString();
+    }
+
+    // Update countdown every second
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  </script>
+</body>
 </html>
